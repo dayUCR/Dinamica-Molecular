@@ -23,6 +23,8 @@ def colision(particle1, particle2):
 
     The calculation is based on the equation found in:
     https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
+    It additionally verifies that the particles are moving towards each other, and otherwise does not
+    modify their velocities
 
     Args:
         particle1: First particle whose velocity to modify
@@ -32,8 +34,10 @@ def colision(particle1, particle2):
     # Constants required for calculation
     a = (particle1.velX-particle2.velX)*(particle1.posX-particle2.posX) \
         + (particle1.velY-particle2.velY)*(particle1.posY-particle2.posY)
+    if a>0: return
     b = (particle1.posX-particle2.posX)**2 + (particle1.posY-particle2.posY)**2
 
+    
     particle1.velX -= (particle1.posX-particle2.posX)*a/b
     particle1.velY -= (particle1.posY-particle2.posY)*a/b
     particle2.velX -= (particle2.posX-particle1.posX)*a/b
@@ -83,8 +87,9 @@ def save_frame(particles, t, frame_num, output_dir=None):
 
 t = 0
 tf = 20
-dt = 0.1
-particles = [Particle([0.25,0.25]), Particle([0.75,0.75])]
+dt = 0.02
+particles = [Particle([0.25,0.25]), Particle([0.75,0.75]),
+             Particle([0.25,0.75]), Particle([0.75,0.25])]
 x_register = [p.posX for p in particles]
 frame_num = 0
 save_frame(particles, t, frame_num)
@@ -132,5 +137,5 @@ print("Histograma guardado: histogram_pos_x.png")
 # Gif
 paths = sorted(glob.glob(os.path.join(code_dir, 'frames', 'frame_*.png')))
 frames_gif = [Image.open(p).convert('RGB') for p in paths]
-frames_gif[0].save(os.path.join(code_dir, 'simulation.gif'), save_all=True, append_images=frames_gif[1:], duration=80, loop=0)
+frames_gif[0].save(os.path.join(code_dir, 'simulation.gif'), save_all=True, append_images=frames_gif[1:], duration=dt*1000, loop=0)
 print(f"Gif guardado: simulation.gif")
