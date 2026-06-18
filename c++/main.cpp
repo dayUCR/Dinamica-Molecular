@@ -31,19 +31,52 @@ void colision(Particle& particle1, Particle& particle2){
 
 }
 
+// Draw Sphere for particle
+void drawSphere(float cx, float cy, float cz, float r) {
+  const int stacks = 12;
+  const int slices = 24;
+
+  for (int i = 0; i < stacks; i++) {
+    float lat0 = M_PI * (-0.5f + (float)i / stacks);
+    float lat1 = M_PI * (-0.5f + (float)(i + 1) / stacks);
+
+    float z0 = std::sin(lat0);
+    float zr0 = std::cos(lat0);
+
+    float z1 = std::sin(lat1);
+    float zr1 = std::cos(lat1);
+
+    glBegin(GL_QUAD_STRIP);
+
+    for (int j = 0; j <= slices; j++) {
+      float lng = 2.0f * M_PI * (float)j / slices;
+
+      float x = std::cos(lng);
+      float y = std::sin(lng);
+
+      glNormal3f(x * zr0, y * zr0, z0);
+      glVertex3f(cx + r * x * zr0, cy + r * y * zr0, cz + r * z0);
+
+      glNormal3f(x * zr1, y * zr1, z1);
+      glVertex3f(cx + r * x * zr1, cy + r * y * zr1, cz + r * z1);
+    }
+
+    glEnd();
+  }
+}
+
 // Draw particle with glfw
 void drawParticles(const std::array<Particle, 8>& particles){
   glPointSize(18.0f); // Size 
   glColor3f(0.1f, 0.8f, 1.0f); // Color
   
- // TODO: Make sphere instead of square 
-  glBegin(GL_POINTS);
-  
+  // TODO: Make sphere instead of square 
+    
   for (const Particle& p : particles){
-    glVertex3f(p.pos[0], p.pos[1], p.pos[2]);
+    drawSphere(p.pos[0], p.pos[1], p.pos[2], p.radius);
   }
 
-  glEnd();
+ 
 }
 
 // Tells How to se a 3d space in 2d screen
@@ -96,6 +129,13 @@ int main(){
   glfwMakeContextCurrent(window);
   glEnable(GL_DEPTH_TEST);
   glClearColor(0.92f, 0.92f, 0.92f, 1.0f);
+  
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_COLOR_MATERIAL);
+ 
+  float lightPos[] = {2.0f, 2.0f, 3.0f, 1.0f};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
   double t = 0.0;
   double tf = 10.0;
