@@ -4,9 +4,6 @@
 #include <array>
 
 class Particle {
-  private:
-    // Where do I place it?
-    Particle();
   public:
     double radius;
 
